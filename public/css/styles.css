@@ -1,0 +1,39 @@
+:root {
+  --pico-font-family: system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="light"],
+:root:not([data-theme="dark"]) {
+  --pico-background-color: #ffffff;
+  --pico-color: #1a1a1a;
+}
+
+[data-theme="dark"] {
+  --pico-background-color: #1a1a1a;
+  --pico-color: #e0e0e0;
+  --pico-primary-background: #0066cc;
+  --pico-primary-hover-background: #0052a3;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+main {
+  padding-top: 2rem;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: var(--pico-del-color);
+  color: var(--pico-del-background-color);
+}
+
