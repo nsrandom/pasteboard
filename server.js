@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 // Database setup
 const db = initDatabase(process.env.DB_PATH || './pasteboard.db');
 
+// Make db available to routes
+app.set('db', db);
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -163,6 +166,10 @@ app.post('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
+
+// API routes
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
 
 // Start server
 app.listen(PORT, () => {
