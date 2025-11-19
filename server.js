@@ -39,6 +39,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
+// Middleware to make authentication status available to all views
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = !!req.session.userId;
+  next();
+});
+
 // Routes
 const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');

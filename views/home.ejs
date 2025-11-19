@@ -1,6 +1,6 @@
 <article>
   <header>
-    <h1>Welcome to Pasteboard</h1>
+    <h1>Pasteboard</h1>
   </header>
   
   <div class="notes-container">
@@ -9,12 +9,6 @@
         <div class="note-item" data-note-id="<%= note.id %>">
           <div class="note-content">
             <pre><%= note.content %></pre>
-            <small class="note-meta">
-              Created: <%= new Date(note.created_at).toLocaleString() %>
-              <% if (note.updated_at !== note.created_at) { %>
-                | Updated: <%= new Date(note.updated_at).toLocaleString() %>
-              <% } %>
-            </small>
           </div>
           <div class="note-actions">
             <button 
@@ -57,10 +51,6 @@
       <p class="no-notes">No notes yet. Create your first note using the API!</p>
     <% } %>
   </div>
-  
-  <form method="POST" action="/logout" style="margin-top: 2rem;">
-    <button type="submit">Logout</button>
-  </form>
 </article>
 
 <!-- Edit Modal -->
@@ -108,7 +98,7 @@
     
     document.getElementById('editNoteId').value = noteId;
     document.getElementById('editContent').value = noteContent;
-    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editModal').style.display = 'flex';
   }
   
   function closeEditModal() {
