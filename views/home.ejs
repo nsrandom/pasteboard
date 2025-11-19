@@ -135,8 +135,16 @@
   let originalCreateContent = '';
   let confirmCallback = null;
   
-  function showConfirmDialog(message, callback) {
+  function showConfirmDialog(message, callback, header = 'Unsaved Changes', yesButtonText = 'Yes, discard changes') {
     document.getElementById('confirmMessage').textContent = message;
+    const modalHeader = document.querySelector('#confirmModal header h2');
+    if (modalHeader) {
+      modalHeader.textContent = header;
+    }
+    const yesButton = document.getElementById('confirmYes');
+    if (yesButton) {
+      yesButton.textContent = yesButtonText;
+    }
     document.getElementById('confirmModal').style.display = 'flex';
     confirmCallback = callback;
   }
@@ -203,34 +211,36 @@
   }
   
   function deleteNote(noteId) {
-    if (!confirm('Are you sure you want to delete this note?')) {
-      return;
-    }
-    
-    fetch(`/api/notes/${noteId}`, {
-      method: 'DELETE',
-      headers: {
-        'X-Session-ID': sessionId
+    showConfirmDialog('Are you sure you want to delete this note?', function(confirmed) {
+      if (!confirmed) {
+        return;
       }
-    })
-    .then(response => {
-      if (response.ok) {
-        const noteItem = document.querySelector(`.note-item[data-note-id="${noteId}"]`);
-        noteItem.remove();
-        
-        // Check if no notes left
-        const notesContainer = document.querySelector('.notes-container');
-        if (notesContainer.querySelectorAll('.note-item').length === 0) {
-          notesContainer.innerHTML = '<p class="no-notes">No notes yet. Create your first note using the API!</p>';
+      
+      fetch(`/api/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-Session-ID': sessionId
         }
-      } else {
-        alert('Failed to delete note');
-      }
-    })
-    .catch(err => {
-      console.error('Error deleting note:', err);
-      alert('Error deleting note');
-    });
+      })
+      .then(response => {
+        if (response.ok) {
+          const noteItem = document.querySelector(`.note-item[data-note-id="${noteId}"]`);
+          noteItem.remove();
+          
+          // Check if no notes left
+          const notesContainer = document.querySelector('.notes-container');
+          if (notesContainer.querySelectorAll('.note-item').length === 0) {
+            notesContainer.innerHTML = '<p class="no-notes">No notes yet. Create your first note using the API!</p>';
+          }
+        } else {
+          alert('Failed to delete note');
+        }
+      })
+      .catch(err => {
+        console.error('Error deleting note:', err);
+        alert('Error deleting note');
+      });
+    }, 'Delete Note', 'Yes, delete');
   }
   
   // Event delegation for action buttons
