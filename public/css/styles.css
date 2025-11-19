@@ -60,6 +60,40 @@
   pointer-events: none;
 }
 
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: all 0.2s ease;
+}
+
+.fab:hover {
+  background-color: var(--pico-primary-hover-background);
+  transform: scale(1.1);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab svg {
+  pointer-events: none;
+}
+
 main {
   padding-top: 2rem;
 }

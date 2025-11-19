@@ -53,6 +53,31 @@
   </div>
 </article>
 
+<!-- Floating Action Button -->
+<button class="fab" onclick="openCreateModal()" aria-label="Create new note" title="Create new note">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+</button>
+
+<!-- Create Note Modal -->
+<div id="createModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <header>
+      <h2>Create New Note</h2>
+    </header>
+    <form id="createForm">
+      <label for="createContent">Content</label>
+      <textarea id="createContent" name="content" rows="10" required></textarea>
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button type="submit">Create</button>
+        <button type="button" onclick="closeCreateModal()" class="secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Edit Modal -->
 <div id="editModal" class="modal" style="display: none;">
   <div class="modal-content">
@@ -104,6 +129,16 @@
   function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
     document.getElementById('editForm').reset();
+  }
+  
+  function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+    document.getElementById('createContent').focus();
+  }
+  
+  function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createForm').reset();
   }
   
   function deleteNote(noteId) {
@@ -185,12 +220,45 @@
     });
     });
     
-    // Close modal when clicking outside
+    // Close modals when clicking outside
     window.addEventListener('click', function(event) {
-      const modal = document.getElementById('editModal');
-      if (event.target === modal) {
+      const editModal = document.getElementById('editModal');
+      const createModal = document.getElementById('createModal');
+      if (event.target === editModal) {
         closeEditModal();
       }
+      if (event.target === createModal) {
+        closeCreateModal();
+      }
+    });
+    
+    // Handle create form submission
+    document.getElementById('createForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const content = document.getElementById('createContent').value;
+      
+      fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'X-Session-ID': sessionId,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: content })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.note) {
+          // Reload page to show new note
+          window.location.reload();
+        } else {
+          alert('Failed to create note');
+        }
+      })
+      .catch(err => {
+        console.error('Error creating note:', err);
+        alert('Error creating note');
+      });
     });
   });
 </script>
