@@ -117,28 +117,53 @@
     });
   }
   
+  let originalEditContent = '';
+  let originalCreateContent = '';
+  
   function editNote(noteId) {
     const noteItem = document.querySelector(`.note-item[data-note-id="${noteId}"]`);
     const noteContent = noteItem.querySelector('.note-content pre').textContent;
     
     document.getElementById('editNoteId').value = noteId;
     document.getElementById('editContent').value = noteContent;
+    originalEditContent = noteContent;
     document.getElementById('editModal').style.display = 'flex';
   }
   
-  function closeEditModal() {
+  function closeEditModal(force = false) {
+    const currentContent = document.getElementById('editContent').value;
+    const hasChanges = currentContent.trim() !== originalEditContent.trim();
+    
+    if (!force && hasChanges) {
+      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
+        return;
+      }
+    }
+    
     document.getElementById('editModal').style.display = 'none';
     document.getElementById('editForm').reset();
+    originalEditContent = '';
   }
   
   function openCreateModal() {
     document.getElementById('createModal').style.display = 'flex';
     document.getElementById('createContent').focus();
+    originalCreateContent = '';
   }
   
-  function closeCreateModal() {
+  function closeCreateModal(force = false) {
+    const currentContent = document.getElementById('createContent').value;
+    const hasChanges = currentContent.trim() !== '';
+    
+    if (!force && hasChanges) {
+      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
+        return;
+      }
+    }
+    
     document.getElementById('createModal').style.display = 'none';
     document.getElementById('createForm').reset();
+    originalCreateContent = '';
   }
   
   function deleteNote(noteId) {
@@ -192,32 +217,34 @@
     
     // Handle edit form submission
     document.getElementById('editForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const noteId = document.getElementById('editNoteId').value;
-    const content = document.getElementById('editContent').value;
-    
-    fetch(`/api/notes/${noteId}`, {
-      method: 'PUT',
-      headers: {
-        'X-Session-ID': sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ content: content })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.note) {
-        // Reload page to show updated note
-        window.location.reload();
-      } else {
-        alert('Failed to update note');
-      }
-    })
-    .catch(err => {
-      console.error('Error updating note:', err);
-      alert('Error updating note');
-    });
+      e.preventDefault();
+      
+      const noteId = document.getElementById('editNoteId').value;
+      const content = document.getElementById('editContent').value;
+      
+      fetch(`/api/notes/${noteId}`, {
+        method: 'PUT',
+        headers: {
+          'X-Session-ID': sessionId,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: content })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.note) {
+          // Close modal with force to skip confirmation
+          closeEditModal(true);
+          // Reload page to show updated note
+          window.location.reload();
+        } else {
+          alert('Failed to update note');
+        }
+      })
+      .catch(err => {
+        console.error('Error updating note:', err);
+        alert('Error updating note');
+      });
     });
     
     // Close modals when clicking outside
@@ -249,6 +276,8 @@
       .then(response => response.json())
       .then(data => {
         if (data.note) {
+          // Close modal with force to skip confirmation
+          closeCreateModal(true);
           // Reload page to show new note
           window.location.reload();
         } else {
