@@ -78,6 +78,20 @@
   </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 400px;">
+    <header>
+      <h2>Unsaved Changes</h2>
+    </header>
+    <p id="confirmMessage">You have unsaved changes. Are you sure you want to close?</p>
+    <div style="display: flex; gap: 1rem; margin-top: 1rem; justify-content: flex-end;">
+      <button type="button" id="confirmYes" class="secondary">Yes, discard changes</button>
+      <button type="button" id="confirmNo">No</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Modal -->
 <div id="editModal" class="modal" style="display: none;">
   <div class="modal-content">
@@ -119,6 +133,18 @@
   
   let originalEditContent = '';
   let originalCreateContent = '';
+  let confirmCallback = null;
+  
+  function showConfirmDialog(message, callback) {
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmModal').style.display = 'flex';
+    confirmCallback = callback;
+  }
+  
+  function hideConfirmDialog() {
+    document.getElementById('confirmModal').style.display = 'none';
+    confirmCallback = null;
+  }
   
   function editNote(noteId) {
     const noteItem = document.querySelector(`.note-item[data-note-id="${noteId}"]`);
@@ -135,9 +161,14 @@
     const hasChanges = currentContent.trim() !== originalEditContent.trim();
     
     if (!force && hasChanges) {
-      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-        return;
-      }
+      showConfirmDialog('You have unsaved changes. Are you sure you want to close?', function(confirmed) {
+        if (confirmed) {
+          document.getElementById('editModal').style.display = 'none';
+          document.getElementById('editForm').reset();
+          originalEditContent = '';
+        }
+      });
+      return;
     }
     
     document.getElementById('editModal').style.display = 'none';
@@ -156,9 +187,14 @@
     const hasChanges = currentContent.trim() !== '';
     
     if (!force && hasChanges) {
-      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-        return;
-      }
+      showConfirmDialog('You have unsaved changes. Are you sure you want to close?', function(confirmed) {
+        if (confirmed) {
+          document.getElementById('createModal').style.display = 'none';
+          document.getElementById('createForm').reset();
+          originalCreateContent = '';
+        }
+      });
+      return;
     }
     
     document.getElementById('createModal').style.display = 'none';
@@ -247,16 +283,34 @@
       });
     });
     
+    // Handle confirmation modal buttons
+    document.getElementById('confirmYes').addEventListener('click', function() {
+      if (confirmCallback) {
+        confirmCallback(true);
+        hideConfirmDialog();
+      }
+    });
+    
+    document.getElementById('confirmNo').addEventListener('click', function() {
+      if (confirmCallback) {
+        confirmCallback(false);
+        hideConfirmDialog();
+      }
+    });
+    
     // Close modals when clicking outside
     window.addEventListener('click', function(event) {
       const editModal = document.getElementById('editModal');
       const createModal = document.getElementById('createModal');
+      const confirmModal = document.getElementById('confirmModal');
+      
       if (event.target === editModal) {
         closeEditModal();
       }
       if (event.target === createModal) {
         closeCreateModal();
       }
+      // Don't close confirmation modal when clicking outside - user must explicitly choose
     });
     
     // Handle create form submission
